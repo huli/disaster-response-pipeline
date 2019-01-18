@@ -1,12 +1,37 @@
 import sys
-
+from sqlalchemy import create_engine
+import pandas as pd
+from nltk.tokenize import word_tokenize
+from nltk.stem.wordnet import WordNetLemmatizer
+import nltk
+nltk.download(['punkt', 'wordnet','stopwords','averaged_perceptron_tagger', 'maxent_ne_chunker'])
+from nltk.corpus import stopwords
+import re
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.pipeline import Pipeline
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
 
 def load_data(database_filepath):
     pass
 
 
-def tokenize(text):
-    pass
+def tokenize(text) -> [str]:
+    
+    # Remove non word characters
+    text = re.sub(r'[^\w]', ' ', text)
+    
+    # Create tokens from words
+    tokens = word_tokenize(text)
+    
+    # Lemmatize, normalize case, and remove leading/trailing white space
+    lemmatizer = WordNetLemmatizer()
+    stop_words = stopwords.words('english')
+    final_tokens = [lemmatizer.lemmatize(token).strip().lower() 
+                        for token in tokens 
+                            if token not in stop_words and len(token) > 2]
+    return final_tokens
 
 
 def build_model():
