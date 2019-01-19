@@ -13,8 +13,6 @@ def load_data(messages_filepath, categories_filepath) -> pd.DataFrame:
     # Merge datasets together
     df = messages.merge(categories, on=['id']) 
 
-    assert len(df) == len(messages)
-
     return df
 
 def clean_data(df) -> pd.DataFrame:
@@ -53,11 +51,13 @@ def clean_data(df) -> pd.DataFrame:
     # Assert the absence of duplicates
     assert sum(df.duplicated(['message', 'original'])) == 0
 
+    return df
+
 def save_data(df, database_filename):
     
     # Create sqlite database
-    engine = create_engine('sqlite:///{}'.format(database_filename), if_exists='replace')
-    df.to_sql('Response', engine, index=False)  
+    engine = create_engine('sqlite:///{}'.format(database_filename))
+    df.to_sql('Response', engine, index=False, if_exists='replace')  
 
 def main():
     if len(sys.argv) == 4:
