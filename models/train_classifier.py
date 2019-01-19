@@ -13,19 +13,20 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.metrics import classification_report
 import pickle
 
 def load_data(database_filepath):
 
     # load data from database
-    engine = create_engine('sqlite:///data/{}'.format(database_filepath))
+    engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql_table('Response', engine)
 
     # Specify dependent and independent variables
     X = df.loc[:, ['message']]
     y = df.iloc[:, 5:] # related is not a category
 
-    return X.message.values, y, y.columns
+    return X.message.values, y
 
 
 def tokenize(text) -> [str]:
@@ -60,7 +61,7 @@ def build_model():
         ])),
         ('multi_clf', MultiOutputClassifier(RandomForestClassifier(random_state=42, 
             n_jobs=-1, 
-            n_estimators=20))),
+            n_estimators=10))),
     ])
 
     return pipeline
@@ -71,14 +72,14 @@ def evaluate_model(model, X_test, y_test):
     pred_grid = model.predict(X_test)
 
     # Print summary
-    print_classification_summary(y_test, y_truth)
+    print_classification_summary(y_test, pred_grid)
 
-def print_classification_summary(y_truth, y_predicted):
+def print_classification_summary(y_test, y_predicted):
 
     # collect the classification reports
     reports = []
     for index in range(len(y_test.columns)):
-        reports.append(classification_report(y_truth.values[:, index], y_predicted[:, index], output_dict=True))
+        reports.append(classification_report(y_test.values[:, index], y_predicted[:, index], output_dict=True))
         
     # create dataframe for cleaner printing
     results = pd.DataFrame(
@@ -91,7 +92,7 @@ def print_classification_summary(y_truth, y_predicted):
     results = results.append(results.sum() / len(results), ignore_index=True)
 
     # add category column
-    results = pd.concat([pd.DataFrame({'category': y_truth.columns.append(pd.Index(['total'])).values}), 
+    results = pd.concat([pd.DataFrame({'category': y_test.columns.append(pd.Index(['total'])).values}), 
                               results], axis=1, sort=False)
 
     # print results
@@ -143,7 +144,7 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         
-        X, y, category_names = load_data(database_filepath)
+        X, y = load_data(database_filepath)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
         
         print('Building model...')
