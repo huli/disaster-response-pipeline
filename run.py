@@ -10,28 +10,16 @@ from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
-
+from models.feature_extractor import tokenize, StartingVerbExtractor, ResponseLengthExtractor
 
 app = Flask(__name__)
 
-def tokenize(text):
-    tokens = word_tokenize(text)
-    lemmatizer = WordNetLemmatizer()
-
-    clean_tokens = []
-    for tok in tokens:
-        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
-        clean_tokens.append(clean_tok)
-
-    return clean_tokens
-
 # load data
-engine = create_engine('sqlite:///../data/DisasterResponses.db')
+engine = create_engine('sqlite:///data/DisasterResponses.db')
 df = pd.read_sql_table('Response', engine)
 
 # load model
-model = joblib.load("../models/nlp_model.pkl")
-
+model = joblib.load("models/nlp_model_2.pkl")
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
@@ -39,12 +27,15 @@ model = joblib.load("../models/nlp_model.pkl")
 def index():
     
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    category_names = df.iloc[:,4:].columns
+    category_counts = (df.iloc[:,4:] != 0).sum().values
+
+    category_counts_sorted = sorted(zip(category_names, category_counts), key=lambda x: x[1])
+
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -61,6 +52,25 @@ def index():
                 },
                 'xaxis': {
                     'title': "Genre"
+                }
+            }
+        }, 
+        {
+            'data': [
+                Bar(
+                    x=[x[0] for x in category_counts_sorted],
+                    y=[x[1] for x in category_counts_sorted]
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "",
+                    'tickangle': 35
                 }
             }
         }
@@ -93,7 +103,7 @@ def go():
 
 
 def main():
-    app.run(host='0.0.0.0', port=3001, debug=True)
+    app.run(host='127.0.0.1', port=3001, debug=True)
 
 
 if __name__ == '__main__':
