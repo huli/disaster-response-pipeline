@@ -1,5 +1,5 @@
 ## Disaster Response Project
-Dashboard for classification of messages sent during disaster
+Dashboard for disaster response professionals
 
 ---
 
@@ -126,4 +126,4 @@ pytest
 * [Udacity](https://www.udacity.com) - for the project basis and the teaching
 * [FigureEight](https://www.figure-eight.com/) - for providing us with real world data from actual disasters
 
---
+---
