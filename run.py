@@ -19,7 +19,7 @@ engine = create_engine('sqlite:///data/DisasterResponses.db')
 df = pd.read_sql_table('Response', engine)
 
 # load model
-model = joblib.load("models/nlp_model_2.pkl")
+model = joblib.load("models/model.pkl")
 
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
