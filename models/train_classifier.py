@@ -12,6 +12,9 @@ from sklearn.ensemble import AdaBoostClassifier
 import pickle
 
 def load_data(database_filepath):
+    ''' Loads the data from the passed path
+    and splits it into X and y
+    '''
 
     # load data from database
     engine = create_engine('sqlite:///{}'.format(database_filepath))
@@ -24,6 +27,7 @@ def load_data(database_filepath):
     return X.message.values, y
 
 def build_model():
+    '''Declares the pipeline for the model'''
 
     # Define complete pipeline
     pipeline = Pipeline([
@@ -43,6 +47,9 @@ def build_model():
     return pipeline
 
 def evaluate_model(model, X_test, y_test):
+    ''' Makes the predictions and prints a 
+    classification summary for the model
+    '''
     
     # Make prediction with learned parameters
     pred_grid = model.predict(X_test)
@@ -51,6 +58,7 @@ def evaluate_model(model, X_test, y_test):
     print_classification_summary(y_test, pred_grid)
 
 def print_classification_summary(y_test, y_predicted):
+    ''' Prints a summary with f1-score '''
 
     # collect the classification reports
     reports = []
@@ -77,6 +85,7 @@ def print_classification_summary(y_test, y_predicted):
 
 
 def save_model(model, model_filepath):
+    ''' Saves the model to a pickle file '''
     
     # Save the model to disk
     pickle.dump(model, open('model.pkl', 'wb'))

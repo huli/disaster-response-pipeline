@@ -11,7 +11,10 @@ import re
 
 
 def tokenize(text) -> [str]:
-    
+    ''' Tokenizes text into words and does
+    some normalization and lemmatization
+    '''
+
     # Remove non word characters
     text = re.sub(r'[^\w]', ' ', text)
     
@@ -28,6 +31,9 @@ def tokenize(text) -> [str]:
 
 
 class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+    ''' Transforms messages into series of True and False
+    by categorizing them according to the first word 
+    '''
 
     def starting_verb(self, text):
         sentence_list = nltk.sent_tokenize(text)
@@ -48,7 +54,8 @@ class StartingVerbExtractor(BaseEstimator, TransformerMixin):
         return pd.DataFrame(X_tagged)
 
 class ResponseLengthExtractor(BaseEstimator, TransformerMixin):
-    
+    ''' Transforms a text into its length '''
+
     def fit(self, x, y=None):
         return self
     
