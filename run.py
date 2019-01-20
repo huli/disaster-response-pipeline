@@ -30,8 +30,9 @@ def index():
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
-    category_names = df.iloc[:,4:].columns
-    category_counts = (df.iloc[:,4:] != 0).sum().values
+    without_related = df.drop('related', axis=1)
+    category_names = without_related.iloc[:,4:].columns
+    category_counts = (without_related.iloc[:,4:] != 0).sum().values
 
     category_counts_sorted = sorted(zip(category_names, category_counts), key=lambda x: x[1])
 
@@ -58,19 +59,23 @@ def index():
         {
             'data': [
                 Bar(
-                    x=[x[0] for x in category_counts_sorted],
-                    y=[x[1] for x in category_counts_sorted]
+                    x=[x[1] for x in category_counts_sorted],
+                    y=[x[0] for x in category_counts_sorted],
+                    orientation='h'
                 )
             ],
 
             'layout': {
                 'title': 'Distribution of Message Categories',
-                'yaxis': {
+                'xaxis': {
                     'title': "Count"
                 },
-                'xaxis': {
-                    'title': "",
-                    'tickangle': 35
+                'yaxis': {
+                    'title': ""
+                },
+                'height': 800,
+                'margin' : {
+                    'l' : 150
                 }
             }
         }
