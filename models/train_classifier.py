@@ -7,7 +7,8 @@ from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
-from feature_extractor import StartingVerbExtractor, ResponseLengthExtractor, tokenize
+from feature_extraction import StartingVerbExtractor, ResponseLengthExtractor, tokenize
+from sklearn.ensemble import AdaBoostClassifier
 import pickle
 
 def load_data(database_filepath):
@@ -30,14 +31,13 @@ def build_model():
 
             ('text_pipeline', Pipeline([
                 ('count', CountVectorizer(tokenizer=tokenize)),
-                ('tfidf', TfidfTransformer()),
+                ('tfidf', TfidfTransformer(use_idf=True, norm='l2')),
             ])),
             ('starting_verb', StartingVerbExtractor()),
             ('tweet_length', ResponseLengthExtractor()),
         ])),
-        ('multi_clf', MultiOutputClassifier(RandomForestClassifier(random_state=42, 
-            n_jobs=-1, 
-            n_estimators=10))),
+        ('multi_clf', MultiOutputClassifier(
+            AdaBoostClassifier(random_state=42, algorithm='SAMME.R'))),
     ])
 
     return pipeline

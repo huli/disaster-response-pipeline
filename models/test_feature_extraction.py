@@ -1,6 +1,6 @@
 import pytest
-from feature_extractor import StartingVerbExtractor
-from feature_extractor import tokenize
+from feature_extraction import StartingVerbExtractor
+from feature_extraction import tokenize
 
 def test_starting_verb_extractor():
     assert all(StartingVerbExtractor().transform(['obtain a new value'])[0]) == True
